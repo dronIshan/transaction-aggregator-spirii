@@ -1,34 +1,44 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
-import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import { Transaction } from './entities/transaction.entity';
+import { ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 
+class TransactionsResponse {
+  items: Transaction[];
+  meta: {
+    totalItems: number;
+    itemCount: number;
+    itemsPerPage: number;
+    totalPages: number;
+    currentPage: number;
+  };
+}
+
+
+@ApiTags('Transactions')
 @Controller('transactions')
 export class TransactionsController {
-  constructor(private readonly transactionsService: TransactionsService) {}
-
-  @Post()
-  create(@Body() createTransactionDto: CreateTransactionDto) {
-    return this.transactionsService.create(createTransactionDto);
-  }
+  constructor(private readonly txService: TransactionsService) {}
 
   @Get()
-  findAll() {
-    return this.transactionsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.transactionsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTransactionDto: UpdateTransactionDto) {
-    return this.transactionsService.update(+id, updateTransactionDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.transactionsService.remove(+id);
+  @ApiOperation({ summary: 'Fetch transactions within a date range' })
+  @ApiQuery({ name: 'startDate', example: '2023-02-01 00:00:00' })
+  @ApiQuery({ name: 'endDate',   example: '2023-02-01 02:00:00' })
+  @ApiOkResponse({ type: TransactionsResponse })
+  async list(
+    @Query('startDate') startDate: string,
+    @Query('endDate')   endDate: string,
+  ): Promise<TransactionsResponse> {
+    const start = new Date(startDate);
+    const end   = new Date(endDate);
+    const items = await this.txService.fetchTransactions(start, end);
+    const meta = {
+      totalItems: items.length,
+      itemCount: items.length,
+      itemsPerPage: items.length,
+      totalPages: 1,
+      currentPage: 1,
+    };
+    return { items, meta };
   }
 }

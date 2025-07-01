@@ -5,9 +5,9 @@
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
 [circleci-url]: https://circleci.com/gh/nestjs/nest
 
-# Transaction Aggregator (Spirii Recruiting Challenge)
+# Transaction Aggregator (Spirii Challenge)
 
-A NestJS microservice that periodically pulls game-score transactions from an external API, aggregates per-user stats in-memory, and exposes two REST endpoints—with zero installs beyond `npm install`.
+A NestJS microservice that periodically pulls game-score transactions from an external API(ITS mocked), aggregates per-user stats in-memory, and exposes two REST endpoints—with zero installs beyond `npm install`.
 
 Repository: https://github.com/dronIshan/transaction-aggregator-spirii
 
@@ -20,7 +20,7 @@ Repository: https://github.com/dronIshan/transaction-aggregator-spirii
    ```
 
 2. **Environment**
-   Copy the example env file and adjust if needed:
+   Copy the example env file and adjust it as .env :
    ```
    cp .env.dev.example .env
    ```

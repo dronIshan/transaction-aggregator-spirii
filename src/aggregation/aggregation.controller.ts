@@ -1,34 +1,52 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Logger,
+} from '@nestjs/common';
 import { AggregationService } from './aggregation.service';
-import { CreateAggregationDto } from './dto/create-aggregation.dto';
-import { UpdateAggregationDto } from './dto/update-aggregation.dto';
+import { SummaryResponseDto } from './dto/summary-response.dto';
+import {
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { PayoutRequestDto } from './dto/src/aggregation/dto/payout-request.dto';
 
 @Controller('aggregation')
+@ApiTags('Users')
+@Controller('users')
 export class AggregationController {
-  constructor(private readonly aggregationService: AggregationService) {}
+  private readonly logger = new Logger(AggregationController.name);
 
-  @Post()
-  create(@Body() createAggregationDto: CreateAggregationDto) {
-    return this.aggregationService.create(createAggregationDto);
+  constructor(private readonly agg: AggregationService) {}
+
+  @Get(':id/summary')
+  @ApiOperation({ summary: 'Get user summary' })
+  @ApiParam({ name: 'id', example: 'u1', description: 'User ID' })
+  @ApiOkResponse({ type: SummaryResponseDto })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  async getSummary(@Param('id') id: string): Promise<SummaryResponseDto> {
+    this.logger.log(`Summary request for ${id}`);
+    const res = await this.agg.getUserSummary(id);
+    this.logger.log(`Summary: ${JSON.stringify(res)}`);
+    return res;
   }
 
-  @Get()
-  findAll() {
-    return this.aggregationService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.aggregationService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAggregationDto: UpdateAggregationDto) {
-    return this.aggregationService.update(+id, updateAggregationDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.aggregationService.remove(+id);
+  @Get('payouts/requests')
+  @ApiTags('Payouts')
+  @ApiOperation({ summary: 'List payout requests' })
+  @ApiOkResponse({ type: [PayoutRequestDto] })
+  async listRequests(): Promise<PayoutRequestDto[]> {
+    this.logger.log('Payout requests list');
+    const res = await this.agg.listPayoutRequests();
+    this.logger.log(`Count: ${res.length}`);
+    return res;
   }
 }

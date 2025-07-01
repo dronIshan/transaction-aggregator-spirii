@@ -7,18 +7,10 @@ import {
   ApiQuery,
   ApiOkResponse,
 } from '@nestjs/swagger';
-import { Transaction } from './entities/transaction.entity';
+import { Transaction } from './transaction.model';
+import { TransactionsResponseDto } from './dto/transactions-response.dto';
 
-class TransactionsResponse {
-  items: Transaction[];
-  meta: {
-    totalItems: number;
-    itemCount: number;
-    itemsPerPage: number;
-    totalPages: number;
-    currentPage: number;
-  };
-}
+
 
 @ApiTags('Transactions API')
 @Controller('transactions')
@@ -31,11 +23,11 @@ export class TransactionsController {
   @ApiOperation({ summary: 'Fetch transactions within a date range' })
   @ApiQuery({ name: 'startDate', example: '2023-02-01T00:00:00Z' })
   @ApiQuery({ name: 'endDate', example: '2023-02-01T02:00:00Z' })
-  @ApiOkResponse({ type: TransactionsResponse })
+  @ApiOkResponse({ type: TransactionsResponseDto })
   async list(
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
-  ): Promise<TransactionsResponse> {
+  ): Promise<TransactionsResponseDto> {
     this.logger.log(`List request: start=${startDate}, end=${endDate}`);
     const start = new Date(startDate);
     const end = new Date(endDate);

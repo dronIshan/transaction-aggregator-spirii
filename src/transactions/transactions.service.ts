@@ -1,15 +1,6 @@
 import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { randomInt, randomUUID } from 'crypto';
-
-export interface Transaction {
-  id: string;
-  userId: string;
-  createdAt: Date;
-  type: TransactionType;
-  amount: number;
-}
-
-export type TransactionType = 'earned' | 'spent' | 'payout';
+import { Transaction, TransactionType } from './transaction.model';
 
 @Injectable()
 export class TransactionsService {

@@ -1,12 +1,12 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
   TransactionsService,
-  TransactionType,
 } from 'src/transactions/transactions.service';
 import { Cron } from '@nestjs/schedule';
 import { AggregationStore } from './data-store.interface';
 import { lastValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
+import { TransactionType } from 'src/transactions/transaction.model';
 export interface Transaction {
   id: string;
   userId: string;

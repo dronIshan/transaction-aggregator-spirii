@@ -40,7 +40,6 @@ export class AggregationController {
   }
 
   @Get('payouts/requests')
-  @ApiTags('Payouts')
   @ApiOperation({ summary: 'List payout requests' })
   @ApiOkResponse({ type: [PayoutRequestDto] })
   async listRequests(): Promise<PayoutRequestDto[]> {

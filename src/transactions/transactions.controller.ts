@@ -1,7 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Query, Logger } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
+
+import {
+  ApiTags,
+  ApiOperation,
+  ApiQuery,
+  ApiOkResponse,
+} from '@nestjs/swagger';
 import { Transaction } from './entities/transaction.entity';
-import { ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 class TransactionsResponse {
   items: Transaction[];
@@ -14,23 +20,25 @@ class TransactionsResponse {
   };
 }
 
-
-@ApiTags('Transactions')
+@ApiTags('Transactions API')
 @Controller('transactions')
 export class TransactionsController {
+  private readonly logger = new Logger(TransactionsController.name);
+
   constructor(private readonly txService: TransactionsService) {}
 
   @Get()
   @ApiOperation({ summary: 'Fetch transactions within a date range' })
-  @ApiQuery({ name: 'startDate', example: '2023-02-01 00:00:00' })
-  @ApiQuery({ name: 'endDate',   example: '2023-02-01 02:00:00' })
+  @ApiQuery({ name: 'startDate', example: '2023-02-01T00:00:00Z' })
+  @ApiQuery({ name: 'endDate', example: '2023-02-01T02:00:00Z' })
   @ApiOkResponse({ type: TransactionsResponse })
   async list(
     @Query('startDate') startDate: string,
-    @Query('endDate')   endDate: string,
+    @Query('endDate') endDate: string,
   ): Promise<TransactionsResponse> {
+    this.logger.log(`List request: start=${startDate}, end=${endDate}`);
     const start = new Date(startDate);
-    const end   = new Date(endDate);
+    const end = new Date(endDate);
     const items = await this.txService.fetchTransactions(start, end);
     const meta = {
       totalItems: items.length,
@@ -39,6 +47,7 @@ export class TransactionsController {
       totalPages: 1,
       currentPage: 1,
     };
+    this.logger.log(`Returning ${items.length} items`);
     return { items, meta };
   }
 }

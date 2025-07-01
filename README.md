@@ -5,94 +5,114 @@
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
 [circleci-url]: https://circleci.com/gh/nestjs/nest
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+# Transaction Aggregator (Spirii Challenge)
 
-## Description
+A NestJS microservice that periodically pulls game-score transactions from an external API(ITS mocked), aggregates per-user stats in-memory, and exposes two REST endpoints—with zero installs beyond `npm install`.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Repository: https://github.com/dronIshan/transaction-aggregator-spirii
 
-## Project setup
+## 🚀 Getting Started
 
-```bash
-$ npm install
-```
+1. **Clone the repo**
 
-## Compile and run the project
+   ```
+   git clone https://github.com/dronIshan/transaction-aggregator-spirii.git
+   cd transaction-aggregator-spirii
+   ```
 
-```bash
-# development
-$ npm run start
+2. **Environment**
+   Copy the example env file and adjust it as .env :
 
-# watch mode
-$ npm run start:dev
+   ```
+   cp .env.dev.example .env
+   ```
 
-# production mode
-$ npm run start:prod
-```
+   ```env
+   # .env.dev.example
+   TRANSACTION_API_URL='http://localhost:3000'
+   TRANSACTION_API_LIMIT=1000
+   ```
 
-## Run tests
+3. **Install dependencies**
 
-```bash
-# unit tests
-$ npm run test
+   ```
+   npm install
+   ```
 
-# e2e tests
-$ npm run test:e2e
+4. **Run**
 
-# test coverage
-$ npm run test:cov
-```
+   ```
+   npm run start:dev
+   ```
 
-## Deployment
+   - Listens on **port 3000**
+   - Swagger UI: http://localhost:3000/api-docs
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+5. **Smoke Test** (after ~60 s for first cron run)
+   ```
+   curl http://localhost:3000/aggregation/u1/balance
+   curl http://localhost:3000/aggregation/payouts/requests
+   ```
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## 🔧 Environment Variables
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+| Key                     | Description                                    | Default      |
+| ----------------------- | ---------------------------------------------- | ------------ |
+| `TRANSACTION_API_URL`   | Base URL of the external transactions API      | **required** |
+| `TRANSACTION_API_LIMIT` | Max transactions per API call (rate-limit cap) | `1000`       |
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Copy `.env.dev.example` → `.env` and update as needed.
 
-## Resources
+## 🧪 Testing Strategy
 
-Check out a few resources that may come in handy when working with NestJS:
+We ensure quality via **layered testing**:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+1. **Unit Tests** (Jest)
+   - **`AggregationService`**:
+     - Mock out `HttpService` and `AggregationStore`.
+     - Verify logic in `handleCron()`, `aggregateBatch()`, `getUserSummary()`, `listPayoutRequests()`.
+   - **`TransactionsService`**:
+     - Simulate rate-limit, verify exception thrown on >5 calls/min.
+     - Verify random-generator boundaries (1–1000 items).
 
-## Support
+2. **Integration Tests** (Supertest + in-memory store)
+   - Boot the Nest app (with only the in-memory store).
+   - Hit `GET /aggregation/:id/balance` and `GET /aggregation/payouts/requests`.
+   - Assert correct JSON structure and HTTP status codes.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+3. **E2E Tests** (Optional Docker-backed Redis)
+   - Start Redis via Docker in CI.
+   - Run full app, let the cron job fire, then query endpoints.
 
-## Stay in touch
+4. **Continuous Integration**
+   - On each push:
+     ```
+     npm test        # unit & integration
+     npm run lint    # code style
+     ```
+   - Fail fast on test or lint errors.
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## ⏱️ TDD Approach (if i had more time)
 
-## License
+1. **Red**: Write a _failing_ unit test first.
+   ```ts
+   it('should compute balance = earned - spent - paidOut', async () => {
+     await service.aggregateBatch([
+       { userId: 'u1', type: 'earned', amount: 5 },
+       { userId: 'u1', type: 'spent', amount: 2 },
+       { userId: 'u1', type: 'payout', amount: 1 },
+     ]);
+     const summary = await service.getUserSummary('u1');
+     expect(summary).toEqual({
+       earned: 5,
+       spent: 2,
+       payout: 1,
+       paidOut: 1,
+       balance: 2,
+     });
+   });
+   ```
+2. **Green**: Implement the minimal code to make it pass.
+3. **Refactor**: Clean up, extract helpers, update documentation—without breaking tests.
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Repeat for **controller** endpoints (using Supertest), for **TransactionsService** rate-limiting, and any new features (filtering, sorting, pagination) you’d add.

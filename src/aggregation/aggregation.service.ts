@@ -1,5 +1,3 @@
-// src/aggregation/aggregation.service.ts
-
 import {
   Inject,
   Injectable,

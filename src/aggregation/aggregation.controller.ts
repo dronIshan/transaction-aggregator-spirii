@@ -1,11 +1,7 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
   Param,
-  Delete,
   Logger,
 } from '@nestjs/common';
 import { AggregationService } from './aggregation.service';
@@ -17,7 +13,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { PayoutRequestDto } from './dto/src/aggregation/dto/payout-request.dto';
+import { PayoutRequestDto } from './dto/payout-request.dto';
 
 @Controller('aggregation')
 @ApiTags('Users')

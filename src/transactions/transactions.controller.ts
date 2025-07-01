@@ -7,7 +7,6 @@ import {
   ApiQuery,
   ApiOkResponse,
 } from '@nestjs/swagger';
-import { Transaction } from './transaction.model';
 import { TransactionsResponseDto } from './dto/transactions-response.dto';
 
 
